@@ -1,0 +1,1 @@
+set synopsys_auto_setup true
