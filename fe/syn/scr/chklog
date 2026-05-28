@@ -1,0 +1,77 @@
+#!/bin/tcsh -f
+
+set grep_option = ""
+echo "[Check unresolved]"
+\grep $grep_option unresolved $1 | sort | uniq -c
+
+echo "\n[Check Latch]"
+\grep $grep_option "\<Latch\>" $1
+
+echo "\n[Check Sensitivity]"
+\grep $grep_option sensitivity $1 | more
+
+echo "\n[Check Error]"
+\grep $grep_option "^[[:space:]]*Error" $1 | sort | uniq -c
+
+echo "\n[Check Failure]"
+\grep $grep_option "^[[:space:]]*Failure" $1 | sort | uniq -c
+
+echo "\n[Multiple driver - Need manual checks]"
+#\grep $grep_option "reg[[:digit:]]\+[[:space:]]*|" $1
+\grep $grep_option "directly connected net may be driven by more than one process or block" $1 | sort | uniq -c
+
+echo "\n[Check Wired Logic]"
+\grep $grep_option "wired-logic" $1 | sort | uniq -c
+
+echo "\n[Check Undefined Clock Ports]"
+\grep $grep_option "Undefined Clock Ports :" $1 | sort | uniq -c
+
+echo "\n[Check Timing Loop]"
+\grep $grep_option "^[[:space:]]*Information: Timing loop" $1 | sort | uniq -c
+
+echo "\n[Uninitialized flip/flops]"
+\grep -n "flop[ ]\+|[ ]*[0-9]\+[ ]*|[ ]*[YN][ ]*|\([ ]*N[ ]*|\)\{6\}" $1
+
+echo "\n[Check Memory leak - synopsys bug?]"
+\grep $grep_option leak $1 | more
+
+echo "\n[Check Undriven register]"
+\grep $grep_option "Undriven register" $1 | sort | uniq -c
+
+echo "\n[Check Warning]"
+#\grep Warning $1
+\grep $grep_option "^[[:space:]]*Warning" $1 | sed \
+	'\
+	/Only simple configurations/d; \
+	/UID-486/d; \
+	/TIM-128/d; \
+	/LINT-30/d; \
+	/LINT-45/d; \
+	/VO-1/d; \
+	/VO-4/d; \
+	/VO-11/d; \
+	' \
+	| sort | uniq -c
+
+#Warning: Only simple configurations (specification of architecture for a top
+
+#man UID-486
+#Warning: The output of the propagate_constraints command is in DCSH mode.  Use the UNIX utility dc-transcript to convert DCSH script to DC-Tcl script. (UID-486)
+
+#man TIM-128
+#Warning: No controlling value could be found for the clock gating cell 'I_TEST_MUX/I_CLK_RTC' for the clock pin 'A'. (TIM-128)
+
+#man LINT-30
+#Warning: In design 'CDM_DBG_MUX_A_0', there are 15 feedthroughs. (LINT-30)
+
+#man LINT-45
+#Warning: Design 'ALI0' is instantiated 32 times. (LINT-45)
+
+#man VO-1
+#Warning: Changed instance name cur_core_ack_reg to cur_core_ack_reg_inst in module GHOST_AHBMST_ASYNC_IF_0. Please use the change_names command to make the correct changes before invoking the verilog writer.   (VO-1)
+
+#man VO-4
+#Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
+
+#man VO-11
+#Warning: Verilog writer has added 6 nets to module CDM_AGC_COMP_0 using SYNOPSYS_UNCONNECTED_ as prefix.  Please use the change_names command to make the correct changes before invoking the verilog writer.  (VO-11)
