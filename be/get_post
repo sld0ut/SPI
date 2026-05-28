@@ -1,0 +1,38 @@
+#!/bin/bash
+
+DESIGN_MODULE=DIG_TOP
+DIR_NAME=./240911_SALUS8_SPI_FINAL
+
+NET_SRC_DIR=${DIR_NAME}
+SPEF_SRC_DIR=${DIR_NAME}
+
+DEF_SRC_DIR=${DIR_NAME}
+LEF_SRC_DIR=${DIR_NAME}
+TECH_LEF_SRC_DIR=${DIR_NAME}
+
+SRC_NET=${DESIGN_MODULE}_nopg.v
+SPEF_MAX=01_sspg_0p6750v_m40c_Cmax.spef
+SPEF_MIN=04_ffpg_0p8250v_125c_Cmin.spef
+
+LOCAL_NET=${DESIGN_MODULE}_nopg.v
+LOCAL_SPEF_MAX=${DESIGN_MODULE}_Cmax.spef
+LOCAL_SPEF_MIN=${DESIGN_MODULE}_Cmin.spef
+
+cp -p ${NET_SRC_DIR}/${SRC_NET}		${LOCAL_NET}
+cp -p ${SPEF_SRC_DIR}/${SPEF_MAX}	${LOCAL_SPEF_MAX}
+cp -p ${SPEF_SRC_DIR}/${SPEF_MIN}	${LOCAL_SPEF_MIN}
+cp -p ${DEF_SRC_DIR}/${DESIGN_MODULE}.def ./${DESIGN_MODULE}.def
+cp -p ${LEF_SRC_DIR}/DIG_TOP.lef ./${DESIGN_MODULE}.lef
+cp -p ${TECH_LEF_SRC_DIR}/DIG_TOP_tech.lef ./tech.lef
+
+echo "copy done ..."
+
+gzip -f ${DESIGN_MODULE}.def
+gzip -f ${DESIGN_MODULE}.lef
+gzip -f tech.lef
+#gzip -f ${LOCAL_SPEF_MAX}
+#gzip -f ${LOCAL_SPEF_MIN}
+#gzip -f ${DESIGN_MODULE}.def
+echo "compression done ..."
+cp -p ${SPEF_SRC_DIR}/${DESIGN_MODULE}.lef	./${DESIGN_MODULE}.lef
+cp -p ${SPEF_SRC_DIR}/${DESIGN_MODULE}.def	./${DESIGN_MODULE}.def
